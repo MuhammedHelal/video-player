@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:string_similarity/string_similarity.dart';
+import 'package:subtitle_wrapper_package/subtitle_controller.dart';
 import 'package:video_player/video_player.dart';
+import 'package:videoplayer/core/database/hive.dart';
 import 'package:videoplayer/features/video_player/cubits/video_cubit/video_state.dart';
 
 class VideoCubit extends Cubit<VideoState> {
@@ -30,6 +33,32 @@ class VideoCubit extends Cubit<VideoState> {
 
   double previousScale = 1.0;
 
+  void initSrtController({String? choosedFile}) async {
+    if (choosedFile == null) {
+      final String fileName = videoPath.split('/').last;
+      MyHive.searchInSrtBox(fileName).then((value) async {
+        if (value == null) {
+          return;
+        }
+        File file = File(value);
+        final content = await file.readAsString();
+        final subtitleController = SubtitleController(
+          subtitleType: SubtitleType.srt,
+          subtitlesContent: content,
+        );
+        emit(AddedSubtitle(subtitleController: subtitleController));
+      });
+    } else {
+      File file = File(choosedFile);
+      final content = await file.readAsString();
+      final subtitleController = SubtitleController(
+        subtitleType: SubtitleType.srt,
+        subtitlesContent: content,
+      );
+      emit(AddedSubtitle(subtitleController: subtitleController));
+    }
+  }
+
   Future<void> initVideoPlayer() async {
     emit(VideoControllerInitLoading());
 
@@ -45,6 +74,7 @@ class VideoCubit extends Cubit<VideoState> {
       emit(VideoControllerInitSuccess());
 
       await playVideo();
+      initSrtController();
     } catch (e) {
       emit(VideoControllerInitFail(e.toString()));
     }

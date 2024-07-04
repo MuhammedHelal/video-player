@@ -13,9 +13,10 @@ void main() async {
   setPrimaryColor();
   setupServiceLocator();
   await MyHive.initHive();
-  await MobileAds.instance.initialize();
 
   runApp(const MyApp());
+  await MyHive.saveToSrtBox();
+  //  await MobileAds.instance.initialize();
 }
 
 class MyApp extends StatefulWidget {
@@ -35,6 +36,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Color Play',
+      debugShowCheckedModeBanner: false,
       theme: MyTheme.lightTheme,
       darkTheme: MyTheme.darkTheme,
       themeMode: ThemeMode.system,

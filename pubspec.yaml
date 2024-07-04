@@ -31,6 +31,8 @@ dependencies:
   animated_icon: null
   dartz: ^0.10.1
   device_info_plus: null
+  equatable: ^2.0.5
+  file_picker: ^8.0.6
   floating: ^2.0.1
   flutter:
     sdk: flutter
@@ -48,6 +50,8 @@ dependencies:
   permission_handler: ^11.2.0
   receive_sharing_intent: ^1.8.0
   screen_brightness: ^1.0.1
+  string_similarity: ^2.0.0
+  subtitle_wrapper_package: ^2.2.1
   video_player: ^2.8.2
   volume_controller: ^2.0.7
 

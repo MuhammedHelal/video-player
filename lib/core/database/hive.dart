@@ -1,17 +1,20 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:string_similarity/string_similarity.dart';
+import 'package:videoplayer/core/database/srt/srt_fns.dart';
 import 'package:videoplayer/core/functions/fetch_videos.dart';
 
 abstract class MyHive {
   static final Box videosBox = Hive.box('videos');
-  static final Box settingsBox = Hive.box('settings');
+  static final Box srtBox = Hive.box('srt');
 
   static Future<void> initHive() async {
     await Hive.initFlutter();
 
     await Hive.openBox('videos');
-    await Hive.openBox('settings');
+    await Hive.openBox('srt');
   }
 
   static Future<void> disposeBoxes() async {
@@ -36,6 +39,34 @@ abstract class MyHive {
     }
   }
 
+  static Future<void> saveToSrtBox() async {
+    final List<dynamic> result = await fetchSrtFiles();
+    if (srtBox.isEmpty) {
+      srtBox.addAll(result);
+    } else {
+      await srtBox.clear();
+      await srtBox.addAll(result);
+    }
+  }
+
+  static Future<String?> searchInSrtBox(String query) async {
+    String? bestMatch;
+    double highestSimilarity = 0.0;
+
+    for (String file in srtBox.values) {
+      double similarity = query.similarityTo(file);
+      if (similarity > highestSimilarity) {
+        highestSimilarity = similarity;
+        bestMatch = file;
+      }
+    }
+    print('Best match: $bestMatch, similarity: $highestSimilarity');
+    if (highestSimilarity > 0.4) {
+      return bestMatch;
+    }
+    return null;
+  }
+
   static Future<List<String>> searchInBox(String query) async {
     if (query.isEmpty) {
       return [];
@@ -50,45 +81,4 @@ abstract class MyHive {
     }
     return result;
   }
-  /* static Future<void> computeSaveToVideosBox() async {
-    ListAllVideos object = ListAllVideos();
-    List<VideoDetails> videos = await object.getAllVideosPath();
-    final result = await compute(saveToVideosBox, videos);
-    videosBox.addAll(result);
-  }*/
-
-  /*static Future<dynamic> saveToVideosBox(List<VideoDetails> videos) async {
-    // if (videosBox.isEmpty) {
-    List<String> videoPaths = videos.map((video) => video.videoPath).toList();
-
-    List<String> sortedPaths = await compute(sortVideosByDate, videoPaths);
-    return sortedPaths;
-    //  videosBox.addAll(sortedPaths);
-    //  }
-    /* else {
-      List<String> newVideoPaths =
-          videos.map((video) => video.videoPath).toList();
-      List<String> existingVideoPaths = List<String>.from(videosBox.values);
-
-      List<String> videosToAdd = newVideoPaths
-          .where((path) => !existingVideoPaths.contains(path))
-          .toList();
-      List<String> videosToRemove = existingVideoPaths
-          .where((path) => !newVideoPaths.contains(path))
-          .toList();
-      if (videosToAdd.isNotEmpty) {
-        for (String path in videosToAdd) {
-          videosBox.add(path);
-        }
-      }
-
-      if (videosToRemove.isNotEmpty) {
-        for (String path in videosToRemove) {
-          int index = videosBox.values.toList().indexOf(path);
-          videosBox.deleteAt(index);
-        }
-      }
-    }
-  }*/
-  }*/
 }

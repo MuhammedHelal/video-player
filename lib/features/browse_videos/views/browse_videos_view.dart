@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -148,7 +147,7 @@ class BrowseVideosView extends StatelessWidget {
                     itemCount: MyHive.videosBox.length,
                     itemBuilder: (context, index) {
                       int reversedIndex = MyHive.videosBox.length - 1 - index;
-                      if (index % 7 == 2) {
+                      /*   if (index % 7 == 2) {
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -160,9 +159,8 @@ class BrowseVideosView extends StatelessWidget {
                             VideoItem(index: reversedIndex),
                           ],
                         );
-                      } else {
-                        return VideoItem(index: reversedIndex);
-                      }
+                      } */
+                      return VideoItem(index: reversedIndex);
                     },
                   ),
                 ],
